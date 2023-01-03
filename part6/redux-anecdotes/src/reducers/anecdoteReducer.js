@@ -4,6 +4,7 @@ const anecdotesAtStart = []
 
 const getId = () => (100000 * Math.random()).toFixed(0)
 
+// eslint-disable-next-line no-unused-vars
 const asObject = (anecdote) => {
   return {
     content: anecdote,
@@ -14,9 +15,9 @@ const asObject = (anecdote) => {
 
 //const initialAnecdotes = anecdotesAtStart.map(asObject)
 const reducer = (state = anecdotesAtStart, action) => {
-  switch(action.type) {
+  switch (action.type) {
     case 'VOTE':
-      return state.map(anecdote => anecdote.id === action.data.id ? {...anecdote, votes: anecdote.votes + 1} : anecdote)
+      return state.map((anecdote) => (anecdote.id === action.data.id ? { ...anecdote, votes: anecdote.votes + 1 } : anecdote))
     case 'NEW_ANECDOTE':
       return [...state, action.data]
     case 'SET_ANECDOTES':
@@ -26,44 +27,38 @@ const reducer = (state = anecdotesAtStart, action) => {
   }
 }
 
-const vote = (id) => (
-  {
-    type: 'VOTE',
-    data: { id }
-  }
-)
+const vote = (id) => ({
+  type: 'VOTE',
+  data: { id }
+})
 
-const createAnecdote = (content) => (
-  {
+const createAnecdote = (content) => ({
   type: 'NEW_ANECDOTE',
   data: content
-  }
-)
+})
 
-const setAnecdotes = (content) => (
-  {
-    type: 'SET_ANECDOTES',
-    data: content
-  }
-)
+const setAnecdotes = (content) => ({
+  type: 'SET_ANECDOTES',
+  data: content
+})
 
 const initializeAnecdotes = () => {
-  return async dispatch => {
+  return async (dispatch) => {
     const anecdotes = await anecdoteService.getAll()
     dispatch(setAnecdotes(anecdotes))
   }
 }
 
-const createNewAnecdote = content => {
-  return async dispatch => {
-    const newAnecdote = await anecdoteService.createAnecdote({content, votes: 0})
+const createNewAnecdote = (content) => {
+  return async (dispatch) => {
+    const newAnecdote = await anecdoteService.createAnecdote({ content, votes: 0 })
     dispatch(createAnecdote(newAnecdote))
   }
 }
 
 const voteAnecdote = (anecdote) => {
-  return async dispatch => {
-    await anecdoteService.update(anecdote.id, {...anecdote, votes: anecdote.votes + 1})
+  return async (dispatch) => {
+    await anecdoteService.update(anecdote.id, { ...anecdote, votes: anecdote.votes + 1 })
     dispatch(vote(anecdote.id))
   }
 }

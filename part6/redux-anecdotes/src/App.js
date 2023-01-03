@@ -9,16 +9,16 @@ import { initializeAnecdotes } from './reducers/anecdoteReducer'
 const App = () => {
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(initializeAnecdotes()) 
-  }, [dispatch]) 
+    dispatch(initializeAnecdotes())
+  }, [dispatch])
   return (
     <div>
       <h2>Anecdotes</h2>
-      <Filter/>
-      <Notification/>
-      <AnecdoteList/>
+      <Filter />
+      <Notification />
+      <AnecdoteList />
       <h2>create new</h2>
-      <AnecdoteForm/>
+      <AnecdoteForm />
     </div>
   )
 }

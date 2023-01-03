@@ -10,7 +10,7 @@
         "lintr": "eslint .",
         "lint": "npm run lintr -- --fix",
         "start:test": "cross-env NODE_ENV=test node index.js",
-        "format": "prettier --write \"**/*.{js,jsx}\""
+        "format": "prettier --write \"./**/*.{js,jsx}\""
     },
     "author": "",
     "license": "ISC",
