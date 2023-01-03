@@ -11,7 +11,7 @@ const LoginForm = ({ setToken, setPage }) => {
   const submit = async (event) => {
     event.preventDefault()
     const res = await login({ variables: { username, password } })
-    const token = res.data.login.value
+    const token = res.data?.login.value
     localStorage.setItem('booksandauthors-user-token', token)
     await setToken(token)
     await setPage('authors')

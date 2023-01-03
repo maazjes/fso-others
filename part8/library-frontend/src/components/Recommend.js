@@ -10,7 +10,7 @@ const Recommend = ({ show, genre }) => {
   if (booksResult.loading || !genre) {
     return null
   }
-  const books = booksResult.data.allBooks.filter((book) => book.genres.includes(genre))
+  const books = booksResult.data ? booksResult.data.allBooks.filter((book) => book.genres.includes(genre)) : []
   return (
     <div>
       <h2>recommendations</h2>

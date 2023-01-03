@@ -1,4 +1,4 @@
-const { ApolloServer, UserInputError, AuthenticationError, gql } = require('apollo-server')
+const { ApolloError, AuthenticationError } = require('apollo-server')
 const Author = require('./models/author')
 const Book = require('./models/book')
 const User = require('./models/user')
@@ -7,10 +7,7 @@ const jwt = require('jsonwebtoken')
 const JWT_SECRET = 'NEED_HERE_A_SECRET_KEY'
 const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
-
-const createAuthor = (args) => {
-  return args.born ? { ...args } : { ...args, born: null }
-}
+const parseBookArgs = require('./util/helpers')
 
 const resolvers = {
   Query: {
@@ -18,7 +15,7 @@ const resolvers = {
     authorCount: async () => await Author.collection.countDocuments(),
     allBooks: async (root, args) => {
       const books = await Book.find({}).populate('author')
-      return books.filter((book) =>
+      const filteredBooks = books.filter((book) =>
         args.author && args.genre
           ? book.author.name === args.author && book.genres.includes(args.genre)
           : args.author
@@ -27,10 +24,11 @@ const resolvers = {
           ? book.genres.includes(args.genre)
           : book
       )
+      console.log(filteredBooks)
+      return filteredBooks
     },
     allGenres: async () => await Genre.find({}),
     me: (root, args, context) => {
-      console.log(context)
       return context.currentUser ? context.currentUser : { username: '', favoriteGenre: '' }
     },
     allAuthors: async () => await Author.find({})
@@ -43,42 +41,37 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args, { currentUser }) => {
+      args = parseBookArgs(args)
       if (!currentUser) {
         throw new AuthenticationError('not authenticated')
       }
-      args.genres.forEach(async (genre) => {
-        await new Genre({ name: genre }).save().catch((error) => {
-          console.log(error.message)
-        })
-      })
       let author = await Author.findOne({ name: args.author })
       if (!author) {
-        author = new Author(createAuthor({ name: args.author }))
+        author = new Author({ name: args.author })
       }
-      const book = new Book({ ...args, author })
-      await book.save().catch((error) => {
-        throw new UserInputError(error.message, {
-          invalidArgs: args
-        })
-      })
       if (!author.books) {
         author.books = []
       }
+      const book = new Book({ ...args, author })
+      await book.save().catch((error) => {
+        throw new ApolloError('invalid args')
+      })
       author.books = author.books.concat(book)
       await author.save().catch((error) => {
-        throw new UserInputError(error.message, {
-          invalidArgs: args
+        throw new ApolloError('invalid args')
+      })
+      args.genres.forEach(async (genre) => {
+        await new Genre({ name: genre }).save().catch((error) => {
+          console.log('duplicate genre removed')
         })
       })
       pubsub.publish('BOOK_ADDED', { bookAdded: book })
       return book
     },
     addAuthor: async (root, args) => {
-      const author = new Author(createAuthor(args))
+      const author = new Author({ ...args })
       return await author.save().catch((error) => {
-        throw new UserInputError(error.message, {
-          invalidArgs: args
-        })
+        throw new ApolloError('invalid args')
       })
     },
     editAuthor: async (root, args, { currentUser }) => {
@@ -90,21 +83,20 @@ const resolvers = {
         return null
       }
       authorToEdit.born = args.setBornTo
-      return await authorToEdit.save()
+      return await authorToEdit.save().catch((error) => {
+        throw new ApolloError('invalid args')
+      })
     },
     createUser: async (root, args) => {
-      console.log(args)
       const user = new User({ username: args.username, favoriteGenre: args.favoriteGenre })
-      return user.save().catch((error) => {
-        throw new UserInputError(error.message, {
-          invalidArgs: args
-        })
+      return await user.save().catch((error) => {
+        throw new ApolloError('invalid args')
       })
     },
     login: async (root, args) => {
       const user = await User.findOne({ username: args.username })
       if (!user || args.password !== 'secret') {
-        throw new UserInputError('wrong credentials')
+        throw new ApolloError('wrong credentials')
       }
       const userForToken = {
         username: user.username,
@@ -114,9 +106,7 @@ const resolvers = {
     },
     addGenre: async (root, args) => {
       return await new Genre({ name: args.name }).save().catch((error) => {
-        throw new UserInputError(error.message, {
-          invalidArgs: args
-        })
+        throw new ApolloError('invalid args')
       })
     }
   },

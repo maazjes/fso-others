@@ -5,7 +5,8 @@ import { BookTable } from './BookTable'
 
 const Books = (props) => {
   const [genre, setGenre] = useState('all')
-  const booksResult = useQuery(ALL_BOOKS, genre === 'all' ? undefined : { variables: { genre } })
+  const args = genre === 'all' ? undefined : { variables: { genre } }
+  const booksResult = useQuery(ALL_BOOKS, args)
   const genresResult = useQuery(ALL_GENRES)
   if (!props.show) {
     return null
@@ -13,8 +14,8 @@ const Books = (props) => {
   if (booksResult.loading || genresResult.loading) {
     return null
   }
-  const books = booksResult.data.allBooks
-  const genres = genresResult.data.allGenres
+  const books = booksResult.data?.allBooks ? booksResult.data.allBooks : []
+  const genres = genresResult.data?.allGenres ? genresResult.data.allGenres : []
   return (
     <div>
       <h2>books</h2>
