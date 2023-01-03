@@ -14,7 +14,7 @@ const Menu = () => {
     paddingRight: 5,
   };
   return (
-    <disv>
+    <div>
       <Link style={padding} to="/anecdotes">
         anecdotes
       </Link>
