@@ -1,0 +1,8 @@
+docker-compose -f docker-compose.dev.yml down --volumes
+docker-compose -f docker-compose.dev.yml up -d
+docker container ls -a
+docker exec -it todo-backend-mongo-1 mongosh -u root -p example
+show dbs
+use the_database
+show collections
+db.todos.insertOne({text: "Increase the number of tools in my toolbelt", done: false})

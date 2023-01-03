@@ -1,0 +1,31 @@
+services:
+  frontend:
+    image: phonebook-frontend-dev
+    build:
+      context: ./frontend
+      dockerfile: ./dev.dockerfile
+    volumes:
+      - ./frontend:/usr/src/app
+    ports:
+      - 3000:3000
+    container_name: phonebook-frontend-dev
+  backend:
+    image: phonebook-backend-dev
+    build:
+      context: ./backend
+      dockerfile: ./dev.dockerfile
+    volumes:
+      - ./backend:/usr/src/app
+    ports:
+      - 3001:3001
+    container_name: phonebook-backend-dev
+  nginx:
+    image: nginx:1.20.1
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8080:80
+    container_name: reverse-proxy-phonebook-dev
+    depends_on:
+      - frontend
+      - backend

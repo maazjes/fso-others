@@ -1,0 +1,6 @@
+docker-compose -f docker-compose.dev.yml down --volumes
+docker-compose -f docker-compose.dev.yml up -d
+docker container ls -a
+docker exec -it todo-backend-redis-1 redis-cli
+SET added_todos 9001
+DEL added_todos

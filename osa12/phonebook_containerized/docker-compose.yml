@@ -1,0 +1,29 @@
+services:
+  frontend:
+    image: phonebook-frontend
+    build:
+      context: ./frontend
+    volumes:
+      - ./frontend:/usr/src/app
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8080/api/
+    container_name: phonebook-frontend
+  backend:
+    image: phonebook-backend
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/usr/src/app
+    container_name: phonebook-backend
+  nginx:
+    image: nginx:1.20.1
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8080:80
+    container_name: reverse-proxy-phonebook
+    depends_on:
+      - frontend
+      - backend
+volumes:
+  mongo_data:
