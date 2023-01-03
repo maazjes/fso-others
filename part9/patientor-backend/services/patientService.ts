@@ -14,7 +14,6 @@ const getNonSensitiveEntries = (): PublicPatient[] =>
     }));
 
 const addPatient = (data: newPatient): Patient => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const patient = { ...data, id: String(uuid()) };
     patients.push(patient);
     return patient;

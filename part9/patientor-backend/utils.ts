@@ -29,8 +29,7 @@ const toNewEntry = (object: any): newEntry => {
         description: parseString(object.description),
         date: parseDate(object.date),
         specialist: parseString(object.specialist),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        diagnosisCodes: object.diagnosisCodes
+        diagnosisCodes: parseDiagnosisCodes(object.diagnosisCodes)
     };
     if (object.type === 'HealthCheck') {
         const healthCheck = {
@@ -58,6 +57,20 @@ const toNewEntry = (object: any): newEntry => {
         return occupational;
     }
     throw new Error('invalid or missing entry fields');
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const parseDiagnosisCodes = (object: any): string[] => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    if (!object || Object.prototype.toString.call(object) !== '[object Array]' || !(object instanceof Array)) {
+        throw new Error('Diagnosiscodes is not an array: ' + object);
+    }
+    const diagnosisCodes = [];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+    object.forEach((obj: any) => {
+        diagnosisCodes.push(parseString(obj));
+    });
+    return object as string[];
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,8 +106,8 @@ const parseHealthCheckRating = (rating: unknown): HealthCheckRating => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isHealthCheckRating = (param: any): param is HealthCheckRating => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    return Object.values(HealthCheckRating).includes(param);
+    const parsedParam = parseString(param);
+    return Object.values(HealthCheckRating).includes(parsedParam);
 };
 
 const isString = (text: unknown): text is string => {
