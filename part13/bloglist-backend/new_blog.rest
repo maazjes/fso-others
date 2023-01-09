@@ -1,0 +1,8 @@
+POST http://localhost:3001/api/blogs
+content-type: application/json
+authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFzZEBhc2QuY29tIiwiaWQiOjEsImlhdCI6MTY3MzE5MzIxM30.F81taQMTCO00ycFg2-Xh2Cr1zMd5OBKu6B_R1OpibjI
+
+{
+    "title": "asd@asd.com",
+    "url": "salainen"
+}
